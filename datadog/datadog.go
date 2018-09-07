@@ -15,12 +15,18 @@ type Monitor struct {
 	host   string
 	port   string
 	client *statsd.Client
+
+	logger logger
 }
 
 const (
 	defaulDataDogHost  = "datadog-agent"
 	defaultDataDogPort = "8125"
 )
+
+type logger interface {
+	Printf(format string, args ...interface{})
+}
 
 // Option used to construct a new Monitor.
 type Option func(*Monitor) error
@@ -61,6 +67,14 @@ func App(name string) Option {
 	}
 }
 
+// WithLogger sets the logger to be used by the monitor.
+func WithLogger(l logger) Option {
+	return func(m *Monitor) error {
+		m.logger = l
+		return nil
+	}
+}
+
 func newClient(host, port string) (*statsd.Client, error) {
 	h, p := host, port
 	if h == "" {
@@ -76,27 +90,38 @@ func newClient(host, port string) (*statsd.Client, error) {
 	return c, nil
 }
 
+func (m *Monitor) log(format string, args ...interface{}) {
+	if m.logger != nil {
+		m.logger.Printf("datadog.monitor: "+format, args)
+	}
+}
+
 // Count can be incremented or decremented.
 func (m *Monitor) Count(name string, value int64, tags []string, rate float64) error {
+	m.log("Count{name: %s, value: %d, tags: %v, rate: %v}", name, value, tags, rate)
 	return m.client.Count(name, value, tags, rate)
 }
 
 // Decr a count.
 func (m *Monitor) Decr(name string, tags []string, rate float64) error {
+	m.log("DecrCount{name: %s, tags: %v, rate: %v}", name, tags, rate)
 	return m.client.Decr(name, tags, rate)
 }
 
 // Incr a count.
 func (m *Monitor) Incr(name string, tags []string, rate float64) error {
+	m.log("IncrCount{name: %s, tags: %v, rate: %v}", name, tags, rate)
 	return m.client.Incr(name, tags, rate)
 }
 
 // Event marks an event.
 func (m *Monitor) Event(title, text string) error {
+	m.log("Event{title: %s, text: %s}", title, text)
 	return m.client.SimpleEvent(title, text)
 }
 
 // Gauge is used to set a metric to a specific value. It will stay at that value until changed.
 func (m *Monitor) Gauge(name string, value float64, tags []string, rate float64) error {
+	m.log("Gauge{name: %s, value: %d, tags: %v, rate: %v}", name, value, tags, rate)
 	return m.client.Gauge(name, value, tags, rate)
 }
