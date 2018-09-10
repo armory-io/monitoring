@@ -77,7 +77,7 @@ func WithLogger(l logger) Option {
 }
 
 // Debug mode for the monitor.
-func Debug(name string) Option {
+func Debug() Option {
 	return func(m *Monitor) error {
 		m.debug = true
 		return nil
