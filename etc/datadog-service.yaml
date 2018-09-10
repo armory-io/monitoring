@@ -7,6 +7,6 @@ spec:
     app: datadog-agent
   ports:
   - name: statsd
-    protocol: TCP
+    protocol: UDP
     port: 8125
     targetPort: 8125

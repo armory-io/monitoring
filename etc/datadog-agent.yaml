@@ -45,10 +45,10 @@ spec:
                 fieldPath: status.hostIP
         resources:
           requests:
-            memory: "512Mi"
+            memory: "768Mi"
             cpu: "500m"
           limits:
-            memory: "512Mi"
+            memory: "768Mi"
             cpu: "500m"
         volumeMounts:
           - name: dockersocket
