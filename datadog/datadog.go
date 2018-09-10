@@ -35,7 +35,9 @@ type Option func(*Monitor) error
 // NewMonitor creates a monitor. It will panic if there is a problem creating it.
 func NewMonitor(opts ...Option) *Monitor {
 	m := &Monitor{
-		id: uuid.New(),
+		id:   uuid.New(),
+		host: defaulDataDogHost,
+		port: defaultDataDogPort,
 	}
 	for _, opt := range opts {
 		err := opt(m)
@@ -57,7 +59,7 @@ func NewMonitor(opts ...Option) *Monitor {
 		t := m.app + " monitor started."
 		m.client.SimpleEvent(t, t)
 	}
-	m.log("Created datadog monitor: %v", *m)
+	m.log("Created datadog monitor: %+v", *m)
 	return m
 }
 
@@ -86,13 +88,6 @@ func Debug() Option {
 }
 
 func newClient(host, port string) (*statsd.Client, error) {
-	h, p := host, port
-	if h == "" {
-		h = defaulDataDogHost
-	}
-	if p == "" {
-		p = defaultDataDogPort
-	}
 	c, err := statsd.New(net.JoinHostPort(host, port))
 	if err != nil {
 		return nil, err
