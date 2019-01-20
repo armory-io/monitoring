@@ -5,6 +5,7 @@ import (
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/pborman/uuid"
 	"net"
+	"os"
 )
 
 // Monitor is used to send metrics to a metric collection service.
@@ -21,8 +22,8 @@ type Monitor struct {
 }
 
 const (
-	defaulDataDogHost  = "datadog-agent"
-	defaultDataDogPort = "8125"
+	envDataDogHost = "DATADOG_HOST"
+	envDataDogPort = "DATADOG_PORT"
 )
 
 type logger interface {
@@ -32,12 +33,19 @@ type logger interface {
 // Option used to construct a new Monitor.
 type Option func(*Monitor) error
 
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 // NewMonitor creates a monitor. It will panic if there is a problem creating it.
 func NewMonitor(opts ...Option) *Monitor {
 	m := &Monitor{
 		id:   uuid.New(),
-		host: defaulDataDogHost,
-		port: defaultDataDogPort,
+		host: getEnv(envDataDogHost, "datadog-agent"),
+		port: getEnv(envDataDogPort, "8125"),
 	}
 	for _, opt := range opts {
 		err := opt(m)
