@@ -4,6 +4,10 @@ package mock
 type Monitor struct {
 }
 
+func NewMonitor() *Monitor {
+	return &Monitor{}
+}
+
 // Count can be incremented or decremented.
 func (m *Monitor) Count(name string, value int64, tags []string, rate float64) error {
 	return nil
