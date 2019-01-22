@@ -2,7 +2,6 @@
 package datadog
 
 import (
-	"fmt"
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/armory-io/monitoring"
 	"github.com/armory-io/monitoring/mock"
