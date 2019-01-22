@@ -9,3 +9,4 @@ type Monitor interface {
 	Event(title, text string) error
 	Gauge(name string, value float64, tags []string, rate float64) error
 }
+

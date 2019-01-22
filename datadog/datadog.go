@@ -2,10 +2,14 @@
 package datadog
 
 import (
+	"fmt"
 	"github.com/DataDog/datadog-go/statsd"
+	"github.com/armory-io/monitoring"
+	"github.com/armory-io/monitoring/mock"
 	"github.com/pborman/uuid"
 	"net"
 	"os"
+	"strconv"
 )
 
 // Monitor is used to send metrics to a metric collection service.
@@ -22,8 +26,9 @@ type Monitor struct {
 }
 
 const (
-	envDataDogHost = "DATADOG_HOST"
-	envDataDogPort = "DATADOG_PORT"
+	envDataDogHost    = "DATADOG_HOST"
+	envDataDogPort    = "DATADOG_PORT"
+	envDataDogEnabled = "DATADOG_ENABLED"
 )
 
 type logger interface {
@@ -40,8 +45,24 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+// By default return dummy monitor unless we actually want datadog enabled
+func NewMonitor(opts ...Option) monitoring.Monitor {
+	var m monitoring.Monitor
+	m = &mock.Monitor{}
+	ddEnvEnabled := getEnv(envDataDogEnabled, "false")
+	ddEnabled, err := strconv.ParseBool(ddEnvEnabled)
+	if err != nil {
+		panic(err)
+	}
+	if !ddEnabled {
+		return m
+	}
+	m = newDDClient(opts...)
+	return m
+}
+
 // NewMonitor creates a monitor. It will panic if there is a problem creating it.
-func NewMonitor(opts ...Option) *Monitor {
+func newDDClient(opts ...Option) *Monitor {
 	m := &Monitor{
 		id:   uuid.New(),
 		host: getEnv(envDataDogHost, "datadog-agent"),
@@ -61,6 +82,7 @@ func NewMonitor(opts ...Option) *Monitor {
 	if m.app != "" {
 
 	}
+	m.log("datadog client init")
 	m.client.Tags = append(m.client.Tags, "monitor-id:"+m.id)
 	if m.app != "" {
 		m.client.Tags = append(m.client.Tags, "app:"+m.app)
