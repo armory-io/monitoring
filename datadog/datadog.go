@@ -2,13 +2,14 @@
 package datadog
 
 import (
+	"net"
+	"os"
+	"strconv"
+
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/armory-io/monitoring"
 	"github.com/armory-io/monitoring/mock"
 	"github.com/pborman/uuid"
-	"net"
-	"os"
-	"strconv"
 )
 
 // Monitor is used to send metrics to a metric collection service.
@@ -78,15 +79,16 @@ func newDDClient(opts ...Option) *Monitor {
 	if err != nil {
 		panic(err)
 	}
-	if m.app != "" {
 
-	}
 	m.log("datadog client init")
 	m.client.Tags = append(m.client.Tags, "monitor-id:"+m.id)
+
 	if m.app != "" {
 		m.client.Tags = append(m.client.Tags, "app:"+m.app)
+		m.client.Namespace = m.app
+
 		t := m.app + " monitor started."
-		m.client.SimpleEvent(t, t)
+		_ = m.client.SimpleEvent(t, t)
 	}
 	m.log("Created datadog monitor: %+v", *m)
 	return m
