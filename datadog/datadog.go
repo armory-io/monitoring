@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/armory-io/monitoring"
@@ -85,7 +86,11 @@ func newDDClient(opts ...Option) *Monitor {
 
 	if m.app != "" {
 		m.client.Tags = append(m.client.Tags, "app:"+m.app)
+
 		m.client.Namespace = m.app
+		if !strings.HasSuffix(m.app, ".") {
+			m.client.Namespace += "."
+		}
 
 		t := m.app + " monitor started."
 		_ = m.client.SimpleEvent(t, t)

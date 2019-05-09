@@ -9,5 +9,5 @@ require (
 	github.com/mitchellh/golicense v0.1.1 // indirect
 	github.com/pborman/uuid v0.0.0-20180906182336-adf5a7427709
 	github.com/sirupsen/logrus v1.4.1
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.3.0
 )
