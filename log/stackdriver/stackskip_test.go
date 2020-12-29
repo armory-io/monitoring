@@ -48,9 +48,16 @@ func TestStackSkip(t *testing.T) {
 		},
 	}
 
-	got, err := json.Marshal(want)
+
+	// remove timestamp from actual result
+	var actual map[string]interface{}
+	json.Unmarshal(out.Bytes(), &actual)
+	delete(actual, "timestamp")
+	actualWithoutTimestamp, err := json.Marshal(actual)
+
+	expected, err := json.Marshal(want)
 	if err != nil {
 		t.Error(err)
 	}
-	assert.JSONEq(t, out.String(), string(got))
+	assert.JSONEq(t, string(expected), string(actualWithoutTimestamp))
 }
