@@ -1,5 +1,7 @@
 module github.com/armory-io/monitoring
 
+go 1.15
+
 require (
 	github.com/DataDog/datadog-go v2.2.0+incompatible
 	github.com/TV4/logrus-stackdriver-formatter v0.1.0
